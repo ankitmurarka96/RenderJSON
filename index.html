@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Data</title>
+    <style>
+        /* CSS for styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+        }
+        
+        #search-bar {
+            margin-bottom: 20px;
+        }
+        
+        #employee-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-gap: 20px;
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .employee-card {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .employee-card h2 {
+            margin-top: 0;
+        }
+        
+        .employee-card p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Employee Data</h1>
+    <input type="text" id="search-bar" placeholder="Search by name or skills">
+    <div id="employee-list"></div>
+
+    <script>
+        // JavaScript logic to render and filter JSON data
+        let employeesData = [];
+
+        function renderEmployees(employees) {
+            const employeeList = document.getElementById('employee-list');
+            employeeList.innerHTML = '';
+
+            employees.forEach(employee => {
+                const card = document.createElement('div');
+                card.className = 'employee-card';
+
+                const name = document.createElement('h2');
+                name.textContent = employee.name;
+                card.appendChild(name);
+
+                const designation = document.createElement('p');
+                designation.textContent = `Designation: ${employee.designation || 'N/A'}`;
+                card.appendChild(designation);
+
+                const skills = document.createElement('p');
+                skills.textContent = `Skills: ${employee.skills.join(', ')}`;
+                card.appendChild(skills);
+
+                if (employee.projects) {
+                    const projects = document.createElement('p');
+                    projects.textContent = `Projects: ${employee.projects.length}`;
+                    card.appendChild(projects);
+                }
+
+                employeeList.appendChild(card);
+            });
+        }
+
+        function filterEmployees(searchTerm) {
+            if (!searchTerm) {
+                renderEmployees(employeesData);
+                return;
+            }
+
+            const filteredEmployees = employeesData.filter(employee => {
+                const nameMatch = employee.name.toLowerCase().includes(searchTerm.toLowerCase());
+                const skillsMatch = employee.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
+
+                return nameMatch || skillsMatch;
+            });
+
+            renderEmployees(filteredEmployees);
+        }
+
+        fetch('https://raw.githubusercontent.com/dixitsoham7/dixitsoham7.github.io/main/index.json')
+            .then(response => response.json())
+            .then(data => {
+                employeesData = data.employees;
+                renderEmployees(employeesData);
+
+                const searchBar = document.getElementById('search-bar');
+                searchBar.addEventListener('input', (event) => {
+                    const searchTerm = event.target.value;
+                    filterEmployees(searchTerm);
+                });
+            })
+            .catch(error => {
+                console.log('Error:', error);
+            });
+    </script>
+</body>
+</html>
